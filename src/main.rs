@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
-const SNAKE_HEAD_COLOR: Color = Color::rgb(0.4, 1.0, 0.2);
-const GRID_WIDTH: u32  = 10;
+const GRID_WIDTH: u32 = 10;
 const GRID_HEIGHT: u32 = 10;
+const CLEAR_COLOR: Color = Color::rgb(0.1, 0.1, 0.8);
+const SNAKE_HEAD_COLOR: Color = Color::rgb(0.4, 1.0, 0.2);
 // const WALL_COLOR: Color = Color::BLACK;
 // const PATH_COLOR: Color = Color::WHITE;
 
@@ -31,7 +32,18 @@ impl Size {
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .insert_resource(ClearColor(CLEAR_COLOR))
+        .insert_resource(WindowDescriptor {
+            title: "Pathfinding Visualizer".to_string(),
+            width: 800.0,
+            height: 800.0,
+            position: None,
+            resizable: false,
+            decorations: true,
+            cursor_locked: false,
+            cursor_visible: true,
+            ..Default::default()
+        })
         .add_startup_system(setup_camera)
         .add_startup_system(spawn_snake)
         .add_system(snake_movement)
@@ -41,6 +53,7 @@ fn main() {
                 .with_system(position_translation)
                 .with_system(size_scaling),
         )
+        .add_plugins(DefaultPlugins)
         .run();
 }
 
@@ -62,7 +75,7 @@ fn spawn_snake(mut command: Commands) {
             ..default()
         })
         .insert(SnakeHead)
-        .insert(Position { x: 9, y: 9 })
+        .insert(Position { x: 0, y: 0 })
         .insert(Size::square(0.8));
 }
 
@@ -89,12 +102,9 @@ fn snake_movement(
 fn size_scaling(windows: Res<Windows>, mut q: Query<(&Size, &mut Transform)>) {
     let window = windows.get_primary().unwrap();
     for (sprite_size, mut transform) in q.iter_mut() {
-        println!("{:#?}", sprite_size);
-        println!("{:#?}", transform);
-        println!("---");
         transform.scale = Vec3::new(
-            sprite_size.width / GRID_WIDTH as f32 * window.width() as f32,
-            sprite_size.height / GRID_HEIGHT as f32 * window.height() as f32,
+            sprite_size.width * (window.width() / GRID_WIDTH as f32),
+            sprite_size.height * (window.height() / GRID_HEIGHT as f32),
             1.0,
         )
     }
