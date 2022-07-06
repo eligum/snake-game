@@ -1,2 +1,2 @@
 # snake-game
-Bare bones snake game using bevy
+Bare bones classic snake game written in `rust` using `Bevy`.
